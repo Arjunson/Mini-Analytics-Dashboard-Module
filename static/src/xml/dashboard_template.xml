@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="mini_analytics_dashboard.Dashboard" owl="1">
+        <!-- <div class="mini-dash-wrapper"> -->
+            <div class="mini-dash">
+                <!-- ─── Header ──────────────────────────────── -->
+                <div class="dash-header">
+                    <div class="dash-header-left">
+                        <h2 class="dash-title"><i class="fa fa-line-chart"/> Analytics Dashboard</h2>
+                        <span class="dash-subtitle">Business Intelligence for Mini Modules</span>
+                    </div>
+                    <div class="dash-header-right">
+                        <div class="btn-group dash-filters">
+                            <button t-att-class="'btn btn-sm ' + (state.period === 'today' ? 'btn-primary' : 'btn-outline-primary')"
+                                    t-on-click="() => this.onPeriodChange('today')">Today</button>
+                            <button t-att-class="'btn btn-sm ' + (state.period === 'week' ? 'btn-primary' : 'btn-outline-primary')"
+                                    t-on-click="() => this.onPeriodChange('week')">This Week</button>
+                            <button t-att-class="'btn btn-sm ' + (state.period === 'month' ? 'btn-primary' : 'btn-outline-primary')"
+                                    t-on-click="() => this.onPeriodChange('month')">This Month</button>
+                            <button t-att-class="'btn btn-sm ' + (state.period === 'year' ? 'btn-primary' : 'btn-outline-primary')"
+                                    t-on-click="() => this.onPeriodChange('year')">This Year</button>
+                        </div>
+                        <button class="btn btn-sm btn-secondary ms-2" t-on-click="() => this.onRefresh()">
+                            <i class="fa fa-refresh"/>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ─── Generate Report ─────────────────────── -->
+                <div class="dash-row">
+                    <div style="flex:1;">
+                        <div class="chart-card">
+                            <h5 class="chart-title"><i class="fa fa-envelope"/> Generate &amp; Email Report</h5>
+                            <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <label style="font-size:0.82rem;font-weight:600;color:#34495e;">From:</label>
+                                    <input type="date" id="reportDateFrom"
+                                           t-att-value="state.reportDateFrom"
+                                           t-on-change="(ev) => this.state.reportDateFrom = ev.target.value"
+                                           style="border:1px solid #ddd;border-radius:8px;padding:6px 12px;font-size:0.82rem;"/>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <label style="font-size:0.82rem;font-weight:600;color:#34495e;">To:</label>
+                                    <input type="date" id="reportDateTo"
+                                           t-att-value="state.reportDateTo"
+                                           t-on-change="(ev) => this.state.reportDateTo = ev.target.value"
+                                           style="border:1px solid #ddd;border-radius:8px;padding:6px 12px;font-size:0.82rem;"/>
+                                </div>
+                                <button class="btn btn-sm"
+                                        style="background:linear-gradient(135deg,#714B67,#9b59b6);color:#fff;border:none;border-radius:20px;padding:8px 20px;font-weight:600;"
+                                        t-on-click="onSendReport">
+                                    <i class="fa fa-paper-plane" style="margin-right:6px;"/>
+                                    <t t-if="state.sendingReport">Sending...</t>
+                                    <t t-else="">Generate &amp; Send Report</t>
+                                </button>
+                            </div>
+                            <t t-if="state.reportMessage">
+                                <div style="margin-top:12px;padding:10px 16px;border-radius:8px;font-size:0.82rem;"
+                                     t-att-style="'background:' + (state.reportSuccess ? '#d4edda' : '#f8d7da') + ';color:' + (state.reportSuccess ? '#155724' : '#721c24')">
+                                    <i t-att-class="'fa ' + (state.reportSuccess ? 'fa-check-circle' : 'fa-exclamation-circle')" style="margin-right:6px;"/>
+                                    <t t-esc="state.reportMessage"/>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ─── KPI Cards ───────────────────────────── -->
+                <div class="dash-kpis">
+                    <div class="kpi-card kpi-revenue">
+                        <div class="kpi-icon"><i class="fa fa-inr"/></div>
+                        <div class="kpi-body">
+                            <span class="kpi-value"><t t-esc="formatCurrency(state.data.kpis.revenue)"/></span>
+                            <span class="kpi-label">Total Revenue</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card kpi-orders">
+                        <div class="kpi-icon"><i class="fa fa-shopping-cart"/></div>
+                        <div class="kpi-body">
+                            <span class="kpi-value"><t t-esc="state.data.kpis.total_orders"/></span>
+                            <span class="kpi-label">Total Orders</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card kpi-customers">
+                        <div class="kpi-icon"><i class="fa fa-users"/></div>
+                        <div class="kpi-body">
+                            <span class="kpi-value"><t t-esc="state.data.kpis.total_customers"/></span>
+                            <span class="kpi-label">Customers</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card kpi-aov">
+                        <div class="kpi-icon"><i class="fa fa-bar-chart"/></div>
+                        <div class="kpi-body">
+                            <span class="kpi-value"><t t-esc="formatCurrency(state.data.kpis.aov)"/></span>
+                            <span class="kpi-label">Avg Order Value</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card kpi-conversion">
+                        <div class="kpi-icon"><i class="fa fa-check-circle"/></div>
+                        <div class="kpi-body">
+                            <span class="kpi-value"><t t-esc="formatPercent(state.data.kpis.conv_rate)"/></span>
+                            <span class="kpi-label">Conversion Rate</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card kpi-cancel">
+                        <div class="kpi-icon"><i class="fa fa-times-circle"/></div>
+                        <div class="kpi-body">
+                            <span class="kpi-value"><t t-esc="formatPercent(state.data.kpis.cancel_rate)"/></span>
+                            <span class="kpi-label">Cancellation Rate</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card kpi-stock">
+                        <div class="kpi-icon"><i class="fa fa-cubes"/></div>
+                        <div class="kpi-body">
+                            <span class="kpi-value"><t t-esc="state.data.kpis.total_stock"/></span>
+                            <span class="kpi-label">Total Stock</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card kpi-lowstock">
+                        <div class="kpi-icon"><i class="fa fa-exclamation-triangle"/></div>
+                        <div class="kpi-body">
+                            <span class="kpi-value"><t t-esc="state.data.kpis.low_stock_count"/></span>
+                            <span class="kpi-label">Low Stock Items</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ─── Charts Row 1 ────────────────────────── -->
+                <div class="dash-row">
+                    <div class="dash-chart-wide">
+                        <div class="chart-card">
+                            <h5 class="chart-title"><i class="fa fa-line-chart"/> Sales Revenue Trend</h5>
+                            <div class="chart-body"><canvas id="salesTrendCanvas"/></div>
+                        </div>
+                    </div>
+                    <div class="dash-chart-narrow">
+                        <div class="chart-card">
+                            <h5 class="chart-title"><i class="fa fa-bar-chart"/> Orders by Status</h5>
+                            <div class="chart-body"><canvas id="orderStatusCanvas"/></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ─── Charts Row 2 ────────────────────────── -->
+                <div class="dash-row">
+                    <div class="dash-chart-third">
+                        <div class="chart-card">
+                            <h5 class="chart-title"><i class="fa fa-pie-chart"/> Revenue by Product</h5>
+                            <div class="chart-body"><canvas id="productRevenueCanvas"/></div>
+                        </div>
+                    </div>
+                    <div class="dash-chart-third">
+                        <div class="chart-card">
+                            <h5 class="chart-title"><i class="fa fa-user-plus"/> Customer Acquisition</h5>
+                            <div class="chart-body"><canvas id="customerGrowthCanvas"/></div>
+                        </div>
+                    </div>
+                    <div class="dash-chart-third">
+                        <div class="chart-card">
+                            <h5 class="chart-title"><i class="fa fa-filter"/> Conversion Funnel</h5>
+                            <div class="chart-body"><canvas id="funnelCanvas"/></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ─── Tables ──────────────────────────────── -->
+                <div class="dash-row">
+                    <div class="dash-table-half">
+                        <div class="chart-card">
+                            <h5 class="chart-title"><i class="fa fa-trophy"/> Top Customers</h5>
+                            <table class="table table-sm dash-table">
+                                <thead>
+                                    <tr><th>#</th><th>Customer</th><th class="text-end">Total Revenue</th></tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="state.data.tables.top_customers" t-as="cust" t-key="cust_index">
+                                        <tr>
+                                            <td class="text-muted"><t t-esc="cust_index + 1"/></td>
+                                            <td class="fw-bold"><t t-esc="cust.name"/></td>
+                                            <td class="text-end text-success fw-bold"><t t-esc="formatCurrency(cust.amount)"/></td>
+                                        </tr>
+                                    </t>
+                                    <t t-if="!state.data.tables.top_customers.length">
+                                        <tr><td colspan="3" class="text-center text-muted p-3">No data available</td></tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="dash-table-half">
+                        <div class="chart-card">
+                            <h5 class="chart-title"><i class="fa fa-clock-o"/> Recent Orders</h5>
+                            <table class="table table-sm dash-table">
+                                <thead>
+                                    <tr><th>Order</th><th>Customer</th><th>Date</th><th>Status</th><th class="text-end">Amount</th></tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="state.data.tables.recent_orders" t-as="order" t-key="order_index">
+                                        <tr>
+                                            <td class="fw-bold"><t t-esc="order.name"/></td>
+                                            <td><t t-esc="order.customer"/></td>
+                                            <td class="text-muted"><t t-esc="order.date"/></td>
+                                            <td>
+                                                <span t-att-class="'badge rounded-pill ' + (order.state === 'confirmed' ? 'bg-success' : (order.state === 'cancel' ? 'bg-danger' : 'bg-warning text-dark'))">
+                                                    <t t-esc="order.state"/>
+                                                </span>
+                                            </td>
+                                            <td class="text-end fw-bold"><t t-esc="formatCurrency(order.amount)"/></td>
+                                        </tr>
+                                    </t>
+                                    <t t-if="!state.data.tables.recent_orders.length">
+                                        <tr><td colspan="5" class="text-center text-muted p-3">No data available</td></tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ─── Generate Report ─────────────────────── -->
+                <!-- <div class="dash-row">
+                    <div style="flex:1;">
+                        <div class="chart-card">
+                            <h5 class="chart-title"><i class="fa fa-envelope"/> Generate &amp; Email Report</h5>
+                            <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <label style="font-size:0.82rem;font-weight:600;color:#34495e;">From:</label>
+                                    <input type="date" id="reportDateFrom"
+                                           t-att-value="state.reportDateFrom"
+                                           t-on-change="(ev) => this.state.reportDateFrom = ev.target.value"
+                                           style="border:1px solid #ddd;border-radius:8px;padding:6px 12px;font-size:0.82rem;"/>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <label style="font-size:0.82rem;font-weight:600;color:#34495e;">To:</label>
+                                    <input type="date" id="reportDateTo"
+                                           t-att-value="state.reportDateTo"
+                                           t-on-change="(ev) => this.state.reportDateTo = ev.target.value"
+                                           style="border:1px solid #ddd;border-radius:8px;padding:6px 12px;font-size:0.82rem;"/>
+                                </div>
+                                <button class="btn btn-sm"
+                                        style="background:linear-gradient(135deg,#714B67,#9b59b6);color:#fff;border:none;border-radius:20px;padding:8px 20px;font-weight:600;"
+                                        t-on-click="onSendReport">
+                                    <i class="fa fa-paper-plane" style="margin-right:6px;"/>
+                                    <t t-if="state.sendingReport">Sending...</t>
+                                    <t t-else="">Generate &amp; Send Report</t>
+                                </button>
+                            </div>
+                            <t t-if="state.reportMessage">
+                                <div style="margin-top:12px;padding:10px 16px;border-radius:8px;font-size:0.82rem;"
+                                     t-att-style="'background:' + (state.reportSuccess ? '#d4edda' : '#f8d7da') + ';color:' + (state.reportSuccess ? '#155724' : '#721c24')">
+                                    <i t-att-class="'fa ' + (state.reportSuccess ? 'fa-check-circle' : 'fa-exclamation-circle')" style="margin-right:6px;"/>
+                                    <t t-esc="state.reportMessage"/>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </div> -->
+            </div>
+        <!-- </div> -->
+    </t>
+</templates>

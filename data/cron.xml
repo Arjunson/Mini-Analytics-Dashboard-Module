@@ -1,0 +1,12 @@
+<odoo>
+    <!-- Monthly Analytics Report Cron — fires 1st of each month -->
+    <record id="cron_monthly_analytics_report" model="ir.cron">
+        <field name="name">Monthly Analytics Report Email</field>
+        <field name="model_id" ref="model_mini_dashboard"/>
+        <field name="state">code</field>
+        <field name="code">model.send_monthly_report_cron()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">months</field>
+        <field name="active">True</field>
+    </record>
+</odoo>

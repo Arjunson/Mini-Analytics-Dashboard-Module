@@ -1,0 +1,34 @@
+<odoo>
+    <!-- Client Action -->
+    <record id="action_mini_analytics_dashboard" model="ir.actions.client">
+        <field name="name">Analytics Dashboard</field>
+        <field name="tag">mini_analytics_dashboard</field>
+    </record>
+
+    <!-- List View for Orders (Reporting fallback) -->
+    <record id="action_mini_order_list" model="ir.actions.act_window">
+        <field name="name">All Orders</field>
+        <field name="res_model">mini.order</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Menu Structure -->
+    <menuitem id="menu_mini_analytics_root" name="Mini Analytics" sequence="50"/>
+
+    <menuitem id="menu_mini_dashboard"
+              name="Dashboard"
+              parent="menu_mini_analytics_root"
+              action="action_mini_analytics_dashboard"
+              sequence="10"/>
+
+    <menuitem id="menu_mini_reporting"
+              name="Reporting"
+              parent="menu_mini_analytics_root"
+              sequence="20"/>
+
+    <menuitem id="menu_mini_order_list"
+              name="All Orders"
+              parent="menu_mini_reporting"
+              action="action_mini_order_list"
+              sequence="10"/>
+</odoo>
